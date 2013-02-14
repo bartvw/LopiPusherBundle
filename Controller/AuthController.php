@@ -26,34 +26,18 @@ class AuthController extends ContainerAware
     {
         $socketId = $request->get('socket_id');
         $channelName = $request->get('channel_name');
+        $pusher = $this->container->get('lopi_pusher.pusher');
 
         if (!$this->container->get('lopi_pusher.authenticator')->authenticate($socketId, $channelName)) {
             throw new AccessDeniedException('Request authentication denied');
         }
 
-        $secret = $this->container->getParameter('lopi_pusher.secret');
-        $key = $this->container->getParameter('lopi_pusher.key');
+        $auth = $pusher->getChannelAuth($channelName, $socketId,
+            $this->container->get('lopi_pusher.authenticator')->getUserId(),
+            $this->container->get('lopi_pusher.authenticator')->getUserInfo()
+        );
 
-        if (strpos($channelName, 'presence') === 0) {
-            $userData = json_encode(array(
-                    'user_id'	=> $this->container->get('lopi_pusher.authenticator')->getUserId(),
-                    'user_info' => $this->container->get('lopi_pusher.authenticator')->getUserInfo()
-            ));
-            $code = hash_hmac('sha256', $socketId.':'.$channelName.':'.$userData, $secret);
-            $auth = $key.':'.$code;
-            $responseData = array(
-                'auth'          => $auth,
-                'channel_data'  => $userData
-            );
-        } else {
-            $code = hash_hmac('sha256', $socketId.':'.$channelName, $secret);
-            $auth = $key.':'.$code;
-            $responseData = array(
-                'auth'          => $auth
-            );
-        }
-
-        return new Response(json_encode($responseData), 200, array('Content-Type' => 'application/json'));
+        return new Response($auth, 200, array('Content-Type' => 'application/json'));
     }
 
 }

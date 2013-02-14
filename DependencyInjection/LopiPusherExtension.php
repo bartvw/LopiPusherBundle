@@ -35,20 +35,18 @@ class LopiPusherExtension extends Extension
         }
         
         $container->setParameter('lopi_pusher.secret', $config['secret']);
-        
-        if (isset($config['encrypted'])) {
-            $container->setParameter('lopi_pusher.encrypted', $config['encrypted']);
-        }
+
 
         if (isset($config['auth_service_id'])) {
             $container->setAlias('lopi_pusher.authenticator', $config['auth_service_id']);
         }
 
-        if (isset($config['serializer'])) {
-            $container->setAlias('lopi_pusher.serializer', $config['serializer']);
-        }
-		
         $loader->load('services.xml');
+
+        if (isset($config['serializer_service_id'])) {
+            $container->setAlias('lopi_pusher.serializer', $config['serializer_service_id']);
+        }
+
     }
 
     public function getAlias()
