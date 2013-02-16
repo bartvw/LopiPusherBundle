@@ -40,6 +40,12 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('serializer_service_id')
                     ->defaultValue('serializer')
                     ->end()
+                ->scalarNode('host')
+                    ->defaultNull()
+                    ->end()
+                ->scalarNode('port')
+                    ->defaultNull()
+                    ->end()
             ->end()
         ;
 

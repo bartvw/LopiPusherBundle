@@ -41,7 +41,25 @@ class LopiPusherExtension extends Extension
             $container->setAlias('lopi_pusher.authenticator', $config['auth_service_id']);
         }
 
+
+
         $loader->load('services.xml');
+
+        $options = $container->getParameter('lopi_pusher.options');
+
+        if (!is_array($options)) {
+            $options = array();
+        }
+
+        if ($config['host']) {
+            $options['host'] = $config['host'];
+        }
+        if ($config['port']) {
+            $options['port'] = $config['port'];
+        }
+
+        $container->setParameter('lopi_pusher.options', $options);
+
 
         if (isset($config['serializer_service_id'])) {
             $container->setAlias('lopi_pusher.serializer', $config['serializer_service_id']);

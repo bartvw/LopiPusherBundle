@@ -3,6 +3,7 @@
 namespace Lopi\Bundle\PusherBundle\Pusher;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Lopi\Bundle\PusherBundle\Exception\PusherException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
@@ -14,7 +15,11 @@ class Pusher
 
     public function __construct($appId, $key, $secret, $options, $serializer = null)
     {
-        $this->pusher = new \Pusher($key, $secret, $appId, $options);
+
+        $this->pusher = new \Pusher($key, $secret, $appId, true,
+            isset($options['host']) ? $options['host'] : null,
+            isset($options['port']) ? $options['port'] : null,
+            isset($options['timeout']) ? $options['timeout'] : null);
         $this->serializer = $serializer;
     }
 
@@ -32,9 +37,9 @@ class Pusher
         $result = $this->pusher->trigger(array($channelName), $eventName,
             $this->serialize($body), $socketId, true, true);
         if ($result['status'] != 200) {
-        $statusCode = $result['status'];
-            $message = $result['body'];
-            throw new HttpException($statusCode, $message);
+            $statusCode = $result['status'];
+            $body = $result['body'];
+            throw new PusherException($statusCode, $body, "trigger failed");
         } else {
             return true;
         }
