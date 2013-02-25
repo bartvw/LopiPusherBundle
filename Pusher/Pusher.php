@@ -20,22 +20,13 @@ class Pusher
             isset($options['host']) ? $options['host'] : null,
             isset($options['port']) ? $options['port'] : null,
             isset($options['timeout']) ? $options['timeout'] : null);
-        $this->serializer = $serializer;
     }
 
-    private function serialize($data) {
-        if ($this->serializer !== null) {
-            return $this->serializer->serialize($data, 'json');
-        } else {
-            return json_encode($data, true);
-        }
-    }
 
     
     public function trigger($channelName, $eventName, $body, $socketId = null)
     {
-        $result = $this->pusher->trigger(array($channelName), $eventName,
-            $this->serialize($body), $socketId, true, true);
+        $result = $this->pusher->trigger(array($channelName), $eventName, $body, $socketId, true, true);
         if ($result['status'] != 200) {
             $statusCode = $result['status'];
             $body = $result['body'];
